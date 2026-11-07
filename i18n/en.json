@@ -1,0 +1,19 @@
+{
+  "title": "Due today",
+  "meta.count": { "one": "%1 task", "other": "%1 tasks" },
+  "meta.countOverdue": { "one": "%1 task · %2 overdue", "other": "%1 tasks · %2 overdue" },
+  "meta.clear": "All clear",
+  "meta.loading": "Checking Todoist…",
+  "bar.tooltip": { "one": "%1 task due today", "other": "%1 tasks due today" },
+  "bar.tooltipClear": "Nothing due today",
+  "add.placeholder": "Add to Inbox",
+  "add.adding": "Adding…",
+  "add.added": "Added “%1”",
+  "action.open": "Open Zero",
+  "action.complete": "Complete",
+  "error.missing": "The Zero app isn't installed.",
+  "error.auth": "Open Zero to connect your Todoist account.",
+  "error.network": "Couldn't reach Todoist. Showing what was there last.",
+  "error.api": "Todoist had a problem: %1",
+  "empty": "Nothing due today."
+}

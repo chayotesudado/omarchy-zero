@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "chayotesudado.zero",
+  "name": "Zero",
+  "version": "0.1.0",
+  "author": "chayotesudado",
+  "license": "MIT",
+  "description": "Todoist in the Omarchy bar: what's due today and overdue, tick tasks off, and add to the Inbox. Needs the Zero app.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Zero",
+    "description": "Todoist's mark on the bar; what's due today and a quick-add box in the popup.",
+    "category": "Productivity",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "refreshMinutes": 5
+    },
+    "schema": [
+      {
+        "key": "refreshMinutes",
+        "type": "number",
+        "label": "Refresh every (minutes)",
+        "description": "How often to check Todoist while the popup is closed.",
+        "defaultValue": 5
+      }
+    ]
+  }
+}
