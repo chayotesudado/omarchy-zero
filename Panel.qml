@@ -33,6 +33,7 @@ Panel {
   property string errorMessage: ""
   property string notice: ""
   readonly property int count: tasks.length
+  readonly property bool canOpen: errorKind !== "missing"
   readonly property int overdueCount: tasks.filter(function(t) { return t.overdue === true }).length
 
   property int cursor: -1
@@ -284,42 +285,50 @@ Panel {
     }
   }
 
-  // Todoist's three stacked check-strokes in the bar's color, without the
-  // tile, so they sit on the bar like the other icons. Drawn, so it needs no
-  // icon font.
   Component {
     id: tickIcon
     Item {
-      Canvas {
-        id: canvas
-        readonly property real size: button.iconSize
-        width: size
-        height: size
+      ZeroMark {
+        size: button.iconSize
+        color: button.foreground
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-        onSizeChanged: requestPaint()
-        Connections { target: button; function onForegroundChanged() { canvas.requestPaint() } }
-        onPaint: {
-          var ctx = getContext("2d")
-          // The strokes span the icon box: 2..62 across, 3..62 down.
-          var s = size / 64
-          ctx.reset()
-          ctx.strokeStyle = button.foreground
-          ctx.lineWidth = 8.5 * s
-          ctx.lineCap = "round"
-          ctx.lineJoin = "round"
-          // A steep short arm and a long shallow one, so each still reads
-          // as a check at bar size.
-          var rows = [17, 34, 51]
-          for (var i = 0; i < rows.length; i++) {
-            var y = rows[i] * s
-            ctx.beginPath()
-            ctx.moveTo(6 * s, y - 2 * s)
-            ctx.lineTo(19 * s, y + 7 * s)
-            ctx.lineTo(58 * s, y - 10 * s)
-            ctx.stroke()
-          }
-        }
+      }
+    }
+  }
+
+  // Todoist's three stacked check-strokes, without the tile, so they sit on
+  // the bar like the other icons and head the popup the same way. Drawn, so
+  // it needs no icon font.
+  component ZeroMark: Canvas {
+    id: mark
+    property real size: Style.font.display
+    property color color: root.foreground
+    width: size
+    height: size
+    implicitWidth: size
+    implicitHeight: size
+    onSizeChanged: requestPaint()
+    onColorChanged: requestPaint()
+    onPaint: {
+      var ctx = getContext("2d")
+      // The strokes span the icon box: 2..62 across, 3..62 down.
+      var s = size / 64
+      ctx.reset()
+      ctx.strokeStyle = color
+      ctx.lineWidth = 8.5 * s
+      ctx.lineCap = "round"
+      ctx.lineJoin = "round"
+      // A steep short arm and a long shallow one, so each still reads
+      // as a check at bar size.
+      var rows = [17, 34, 51]
+      for (var i = 0; i < rows.length; i++) {
+        var y = rows[i] * s
+        ctx.beginPath()
+        ctx.moveTo(6 * s, y - 2 * s)
+        ctx.lineTo(19 * s, y + 7 * s)
+        ctx.lineTo(58 * s, y - 10 * s)
+        ctx.stroke()
       }
     }
   }
@@ -366,14 +375,11 @@ Panel {
           meta: root.metaText()
           foreground: root.foreground
           fontFamily: root.fontFamily
+          // The count is already in the meta line, so the hero shows the mark.
           iconComponent: Component {
-            Text {
-              textFormat: Text.PlainText
-              text: Commons.I18n.formatNumber(root.count)
-              color: root.overdueCount > 0 ? root.urgent : root.foreground
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.displayLarge
-              font.bold: true
+            ZeroMark {
+              size: Style.font.display
+              color: root.foreground
             }
           }
         }
@@ -443,9 +449,11 @@ Panel {
           }
         }
 
+        // Bound to the condition, not openButton.visible: a child reads as
+        // invisible while its parent is hidden, so that never turned back on.
         Item {
           width: parent.width
-          visible: openButton.visible || root.notice !== ""
+          visible: root.canOpen || root.notice !== ""
           implicitHeight: openButton.implicitHeight
 
           Text {
@@ -468,7 +476,7 @@ Panel {
             foreground: root.foreground
             fontFamily: root.fontFamily
             bordered: true
-            visible: root.errorKind !== "missing"
+            visible: root.canOpen
             onClicked: root.openApp()
           }
         }
