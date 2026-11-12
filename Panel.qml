@@ -7,7 +7,7 @@ import qs.Commons as Commons
 import qs.Ui
 import "Model.js" as Model
 
-// Todoist in the bar, through the Zero app's command line: Todoist's mark on
+// Todoist in the bar, through the Zero app's command line: Zero's pixel Z on
 // the bar, and a popup that lists what's due today and overdue with a circle to tick
 // each one off, and a box at the bottom adds to the Inbox. The app keeps the
 // token (~/.config/zero/token); this plugin never sees it.
@@ -274,7 +274,7 @@ Panel {
     anchors.fill: parent
     bar: root.bar
     text: ""
-    iconComponent: tickIcon
+    iconComponent: markIcon
     slotSize: Style.bar.iconSlot
     tooltipText: root.errorKind === "auth" || root.errorKind === "missing" ? root.errorText()
       : root.count > 0 ? strings.tn("bar.tooltip", root.count).arg(Commons.I18n.formatNumber(root.count))
@@ -285,50 +285,68 @@ Panel {
     }
   }
 
+  // The bar scales an icon until its measured bounds fill the icon size,
+  // which would put the Z's pixels between screen pixels. This invisible box
+  // is what it measures, so the Z stays at one screen pixel per pixel,
+  // centered on whole pixels.
   Component {
-    id: tickIcon
-    Item {
+    id: markIcon
+    Rectangle {
+      color: "transparent"
+      width: button.iconSize
+      height: button.iconSize
       ZeroMark {
-        size: button.iconSize
+        small: true
+        size: parent.height
         color: button.foreground
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
+        x: Math.floor((parent.width - width) / 2)
+        y: Math.floor((parent.height - height) / 2)
       }
     }
   }
 
-  // Todoist's three stacked check-strokes, without the tile, so they sit on
-  // the bar like the other icons and head the popup the same way. Drawn, so
-  // it needs no icon font.
-  component ZeroMark: Canvas {
+  // Zero's pixel Z in the theme color, with no tile, and the app icon's two
+  // steps of depth drawn as fainter shades of that color instead of its
+  // blues. The popup draws the app icon's Z (9 by 10 pixels). The bar's is
+  // redrawn for its 12 pixels, a front of 8 by 10 with a three-pixel
+  // diagonal that runs corner to corner, so it keeps the weight of the
+  // icons beside it and still reads as a Z. Each pixel is a whole number of
+  // screen pixels, so it stays sharp. Plain rectangles rather than a Canvas:
+  // in the bar, the Canvas texture came out with a stray pixel.
+  component ZeroMark: Item {
     id: mark
     property real size: Style.font.display
     property color color: root.foreground
-    width: size
-    height: size
-    implicitWidth: size
-    implicitHeight: size
-    onSizeChanged: requestPaint()
-    onColorChanged: requestPaint()
-    onPaint: {
-      var ctx = getContext("2d")
-      // The strokes span the icon box: 2..62 across, 3..62 down.
-      var s = size / 64
-      ctx.reset()
-      ctx.strokeStyle = color
-      ctx.lineWidth = 8.5 * s
-      ctx.lineCap = "round"
-      ctx.lineJoin = "round"
-      // A steep short arm and a long shallow one, so each still reads
-      // as a check at bar size.
-      var rows = [17, 34, 51]
-      for (var i = 0; i < rows.length; i++) {
-        var y = rows[i] * s
-        ctx.beginPath()
-        ctx.moveTo(6 * s, y - 2 * s)
-        ctx.lineTo(19 * s, y + 7 * s)
-        ctx.lineTo(58 * s, y - 10 * s)
-        ctx.stroke()
+    property bool small: false
+    readonly property var rows: small
+      ? ["11111111..", "111111112.", ".222211123", "..33111223", "...1112233", "..1112233.",
+         ".1112233..", "1112233...", "11111111..", "111111112.", ".222222223", "..33333333"]
+      : ["1111111..", ".2222112.", "..3311223", "...112233", "..112233.",
+         ".112233..", "112233...", "1111111..", ".2222222.", "..3333333"]
+    readonly property int columns: rows[0].length
+    readonly property int cell: Math.max(1, Math.floor(size / rows.length))
+    // Front, then the two depth steps.
+    readonly property var shades: [1, 0.55, 0.3]
+    width: columns * cell
+    height: rows.length * cell
+    implicitWidth: width
+    implicitHeight: height
+
+    Repeater {
+      model: mark.rows.length * mark.columns
+      Rectangle {
+        required property int index
+        readonly property int col: index % mark.columns
+        readonly property int row: Math.floor(index / mark.columns)
+        readonly property string pixel: mark.rows[row][col]
+        visible: pixel !== "."
+        x: col * mark.cell
+        y: row * mark.cell
+        width: mark.cell
+        height: mark.cell
+        color: mark.color
+        opacity: visible ? mark.shades[+pixel - 1] : 0
+        antialiasing: false
       }
     }
   }
@@ -378,7 +396,7 @@ Panel {
           // The count is already in the meta line, so the hero shows the mark.
           iconComponent: Component {
             ZeroMark {
-              size: Style.font.display
+              size: Style.font.display * 1.25
               color: root.foreground
             }
           }

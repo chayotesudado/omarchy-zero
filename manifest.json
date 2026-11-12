@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "chayotesudado.zero",
   "name": "Zero",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "chayotesudado",
   "license": "MIT",
   "description": "Todoist in the Omarchy bar: what's due today and overdue, tick tasks off, and add to the Inbox. Needs the Zero app.",
@@ -14,7 +14,7 @@
   },
   "barWidget": {
     "displayName": "Zero",
-    "description": "Todoist's mark on the bar; what's due today and a quick-add box in the popup.",
+    "description": "Zero's pixel Z on the bar; what's due today and a quick-add box in the popup.",
     "category": "Productivity",
     "allowMultiple": false,
     "defaultSection": "right",

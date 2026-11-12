@@ -1,7 +1,7 @@
 # Zero for the Omarchy bar
 
 An Omarchy shell bar widget for [Zero](https://github.com/chayotesudado/zero),
-a Todoist app for Omarchy. The bar shows Todoist's three-check mark in your
+a Todoist app for Omarchy. The bar shows Zero's pixel Z in your
 theme's color; click it for what's due today and overdue, tick tasks off, and
 add to your Inbox without opening anything.
 
