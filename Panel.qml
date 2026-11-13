@@ -178,8 +178,13 @@ Panel {
     addCall.start(["add", trimmed])
   }
 
+  // Focuses Zero's window, found by its class alone (exactly "zero"), or
+  // launches it. omarchy-launch-or-focus also matches window titles, and a
+  // bare "zero" there found any window with the word in its title, like an
+  // editor open on a folder named zero. The launch command is given, since
+  // without one it would run the pattern.
   function openApp() {
-    Quickshell.execDetached(["omarchy-launch-or-focus", "zero"])
+    Quickshell.execDetached(["omarchy-launch-or-focus", "^zero$", "uwsm-app -- zero"])
     close()
   }
 
