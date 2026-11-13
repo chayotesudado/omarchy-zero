@@ -178,8 +178,21 @@ Panel {
     addCall.start(["add", trimmed])
   }
 
+  // Focuses Zero's window, found by its class alone (exactly "zero"), or
+  // launches Zero. Not omarchy-launch-or-focus: it matches window titles
+  // too, so an editor open on a folder named zero (titled just "zero") was
+  // focused instead. The focus is the same as that script's: Hyprland's
+  // newer dispatch, falling back to focuswindow.
+  readonly property string openScript:
+    'addr=$(hyprctl clients -j | jq -r \'first(.[] | select(.class == "zero") | .address) // empty\')\n' +
+    'if [ -n "$addr" ]; then\n' +
+    '  hyprctl dispatch "hl.dsp.focus({ window = \\"address:$addr\\" })" >/dev/null 2>&1 || hyprctl dispatch focuswindow "address:$addr"\n' +
+    'else\n' +
+    '  exec setsid uwsm-app -- zero\n' +
+    'fi'
+
   function openApp() {
-    Quickshell.execDetached(["omarchy-launch-or-focus", "zero"])
+    Quickshell.execDetached(["sh", "-c", openScript])
     close()
   }
 
