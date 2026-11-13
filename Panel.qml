@@ -7,7 +7,7 @@ import qs.Commons as Commons
 import qs.Ui
 import "Model.js" as Model
 
-// Todoist in the bar, through the Zero app's command line: Zero's pixel Z on
+// Todoist in the bar, through the Zero app's command line: Zero's pixel check on
 // the bar, and a popup that lists what's due today and overdue with a circle to tick
 // each one off, and a box at the bottom adds to the Inbox. The app keeps the
 // token (~/.config/zero/token); this plugin never sees it.
@@ -299,8 +299,8 @@ Panel {
   }
 
   // The bar scales an icon until its measured bounds fill the icon size,
-  // which would put the Z's pixels between screen pixels. This invisible box
-  // is what it measures, so the Z stays at one screen pixel per pixel,
+  // which would put the check's pixels between screen pixels. This invisible box
+  // is what it measures, so the check stays at one screen pixel per pixel,
   // centered on whole pixels.
   Component {
     id: markIcon
@@ -309,7 +309,6 @@ Panel {
       width: button.iconSize
       height: button.iconSize
       ZeroMark {
-        small: true
         size: parent.height
         color: button.foreground
         x: Math.floor((parent.width - width) / 2)
@@ -318,28 +317,22 @@ Panel {
     }
   }
 
-  // Zero's pixel Z in the theme color, with no tile, and the app icon's two
-  // steps of depth drawn as fainter shades of that color instead of its
-  // blues. The popup draws the app icon's Z (9 by 10 pixels). The bar's is
-  // redrawn for its 12 pixels, a front of 8 by 10 with a three-pixel
-  // diagonal that runs corner to corner, so it keeps the weight of the
-  // icons beside it and still reads as a Z. Each pixel is a whole number of
-  // screen pixels, so it stays sharp. Plain rectangles rather than a Canvas:
-  // in the bar, the Canvas texture came out with a stray pixel.
+  // Zero's pixel check (the brand kit's zero-mark-bar, 12 by 10 pixels) in
+  // the theme color, with no tile, and its two steps of depth drawn as
+  // fainter shades of that color, as the kit's cream does on Gruvbox. At 12
+  // pixels it fills the bar's icon size exactly, one screen pixel per pixel;
+  // the popup draws it at three. Plain rectangles rather than a Canvas: in
+  // the bar, a Canvas texture came out with a stray pixel.
   component ZeroMark: Item {
     id: mark
     property real size: Style.font.display
     property color color: root.foreground
-    property bool small: false
-    readonly property var rows: small
-      ? ["11111111..", "111111112.", ".222211123", "..33111223", "...1112233", "..1112233.",
-         ".1112233..", "1112233...", "11111111..", "111111112.", ".222222223", "..33333333"]
-      : ["1111111..", ".2222112.", "..3311223", "...112233", "..112233.",
-         ".112233..", "112233...", "1111111..", ".2222222.", "..3333333"]
+    readonly property var rows: ["........11..", ".......1112.", "......111223", "11...1112233", "111.1112233.",
+                                 ".111112233..", "..1112233...", "...12233....", "....233.....", ".....3......"]
     readonly property int columns: rows[0].length
     readonly property int cell: Math.max(1, Math.floor(size / rows.length))
     // Front, then the two depth steps.
-    readonly property var shades: [1, 0.55, 0.3]
+    readonly property var shades: [1, 0.66, 0.32]
     width: columns * cell
     height: rows.length * cell
     implicitWidth: width
